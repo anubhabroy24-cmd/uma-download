@@ -1,0 +1,133 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>PujoPlan – Download App</title>
+  <meta name="description" content="Download PujoPlan – your ultimate Durga Puja companion app." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --gold:  #f5c842;
+      --amber: #e8831a;
+      --red:   #c0392b;
+      --dark:  #0d0b14;
+      --card:  rgba(255,255,255,0.06);
+      --blur:  blur(18px);
+    }
+    html, body { height: 100%; background: var(--dark); font-family: 'Outfit', sans-serif; color: #fff; overflow-x: hidden; }
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 20% 10%,  rgba(197,76,29,0.25) 0%, transparent 70%),
+        radial-gradient(ellipse 70% 50% at 80% 90%,  rgba(245,200,66,0.20) 0%, transparent 70%),
+        radial-gradient(ellipse 60% 80% at 60% 40%,  rgba(120,0,60,0.18)  0%, transparent 70%);
+      animation: bgPulse 8s ease-in-out infinite alternate;
+      z-index: 0;
+    }
+    @keyframes bgPulse { 0% { opacity:.8; transform:scale(1); } 100% { opacity:1; transform:scale(1.05); } }
+    .particles { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+    .particle { position: absolute; border-radius: 50%; opacity: 0; animation: float linear infinite; }
+    @keyframes float { 0% { transform:translateY(110vh) scale(0); opacity:0; } 10% { opacity:.6; } 90% { opacity:.3; } 100% { transform:translateY(-10vh) scale(1); opacity:0; } }
+    .page { position:relative; z-index:1; min-height:100vh; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:40px 20px; gap:36px; }
+    .header { text-align:center; }
+    .logo-emoji { font-size:56px; display:block; margin-bottom:10px; filter:drop-shadow(0 0 18px #f5c84288); animation:pulse 3s ease-in-out infinite; }
+    @keyframes pulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+    .header h1 { font-size:clamp(2.2rem,6vw,3.6rem); font-weight:900; background:linear-gradient(135deg,var(--gold),var(--amber),var(--red)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text; letter-spacing:-1px; line-height:1.1; }
+    .header p { margin-top:10px; font-size:1.05rem; color:rgba(255,255,255,0.55); font-weight:300; }
+    .badge { margin-top:18px; display:inline-flex; align-items:center; gap:8px; padding:8px 20px; background:rgba(245,200,66,0.12); border:1px solid rgba(245,200,66,0.35); border-radius:40px; color:var(--gold); font-size:.9rem; font-weight:600; animation:badgePop .6s .4s cubic-bezier(.34,1.56,.64,1) both; }
+    @keyframes badgePop { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+    .badge .dot { width:8px; height:8px; border-radius:50%; background:var(--gold); animation:blink 1.2s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+    .video-card { width:100%; max-width:680px; background:var(--card); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border:1px solid rgba(255,255,255,0.10); border-radius:24px; overflow:hidden; box-shadow:0 32px 80px rgba(0,0,0,0.55),0 0 0 1px rgba(245,200,66,0.08); position:relative; }
+    .video-card video { width:100%; height:auto; display:block; }
+    .video-label { position:absolute; top:14px; left:14px; background:rgba(0,0,0,0.55); backdrop-filter:blur(8px); border:1px solid rgba(245,200,66,0.3); color:var(--gold); font-size:.75rem; font-weight:600; letter-spacing:.08em; text-transform:uppercase; padding:4px 10px; border-radius:20px; }
+    .music-bar { width:100%; max-width:680px; background:var(--card); backdrop-filter:var(--blur); -webkit-backdrop-filter:var(--blur); border:1px solid rgba(255,255,255,0.10); border-radius:18px; padding:18px 22px; display:flex; align-items:center; gap:16px; box-shadow:0 16px 40px rgba(0,0,0,0.40); }
+    .music-icon { width:48px; height:48px; border-radius:50%; background:linear-gradient(135deg,var(--amber),var(--red)); display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; animation:spinIcon 4s linear infinite; }
+    @keyframes spinIcon { to { transform:rotate(360deg); } }
+    .music-bar-inner { flex:1; display:flex; flex-direction:column; gap:8px; }
+    .music-info strong { display:block; font-size:.95rem; font-weight:600; color:#fff; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+    .music-info span { font-size:.78rem; color:rgba(255,255,255,0.45); }
+    audio#bgAudio { width:100%; accent-color:var(--gold); }
+    #toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(80px); background:rgba(245,200,66,0.15); border:1px solid rgba(245,200,66,0.4); backdrop-filter:blur(16px); color:var(--gold); font-size:.9rem; font-weight:600; padding:14px 32px; border-radius:50px; white-space:nowrap; opacity:0; transition:transform .4s cubic-bezier(.34,1.56,.64,1),opacity .4s; z-index:999; }
+    #toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+    .footer { font-size:.78rem; color:rgba(255,255,255,0.22); text-align:center; padding-bottom:10px; }
+  </style>
+</head>
+<body>
+<div class="particles" id="particles"></div>
+<div class="page">
+  <div class="header">
+    <span class="logo-emoji">&#x1FA94;</span>
+    <h1>PujoPlan</h1>
+    <p>Your ultimate Durga Puja companion &mdash; now on Android</p>
+    <div class="badge"><span class="dot"></span> Download starting automatically&hellip;</div>
+  </div>
+  <div class="video-card">
+    <span class="video-label">&#127909; Preview</span>
+    <video id="mainVideo" autoplay muted loop playsinline>
+      <source src="x.mp4" type="video/mp4" />
+    </video>
+  </div>
+  <div class="music-bar">
+    <div class="music-icon">&#127925;</div>
+    <div class="music-bar-inner">
+      <div class="music-info">
+        <strong>Pather Panchali &ndash; Theme Song</strong>
+        <span>Background music &bull; looping</span>
+      </div>
+      <audio id="bgAudio" controls loop>
+        <source src="ytmp3free.cc_pather-panchali-theme-song-youtubemp3free.org.mp3" type="audio/mpeg" />
+      </audio>
+    </div>
+  </div>
+  <div class="footer">&copy; 2026 PujoPlan &middot; Made with &#10084;&#65039; for Durga Puja</div>
+</div>
+<div id="toast">&#11015;&#65039; Download started!</div>
+
+<!-- Hidden auto-download link -->
+<a id="autodl" href="pujoplan-debug.apk" download="PujoPlan.apk" style="display:none"></a>
+
+<script>
+  /* ── Particles ── */
+  (function() {
+    var container = document.getElementById('particles');
+    var colors = ['#f5c842','#e8831a','#c0392b','#e74c3c','#f39c12'];
+    for (var i = 0; i < 28; i++) {
+      var p = document.createElement('div');
+      p.className = 'particle';
+      var size = Math.random() * 8 + 3;
+      p.style.cssText = 'width:'+size+'px;height:'+size+'px;left:'+(Math.random()*100)+'%;background:'+colors[Math.floor(Math.random()*colors.length)]+';animation-duration:'+(Math.random()*14+8)+'s;animation-delay:'+(Math.random()*10)+'s;';
+      container.appendChild(p);
+    }
+  })();
+
+  /* ── Auto-download on page load ── */
+  window.addEventListener('load', function() {
+    // Trigger download immediately
+    document.getElementById('autodl').click();
+
+    // Show toast
+    var toast = document.getElementById('toast');
+    toast.classList.add('show');
+    setTimeout(function(){ toast.classList.remove('show'); }, 3500);
+  });
+
+  /* ── Audio + Video autoplay ── */
+  var audio = document.getElementById('bgAudio');
+  var video = document.getElementById('mainVideo');
+  function tryPlay() {
+    audio.volume = 0.55;
+    audio.play().catch(function(){});
+    video.play().catch(function(){});
+  }
+  tryPlay();
+  document.addEventListener('click', tryPlay, { once: true });
+  document.addEventListener('touchstart', tryPlay, { once: true });
+</script>
+</body>
+</html>
