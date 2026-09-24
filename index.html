@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -33,33 +33,27 @@
 
 <body>
 
-  <video autoplay muted loop playsinline>
-    <source src="x.mp4" type="video/mp4" />
+  <!-- Video with music baked in — no muted attribute so audio plays through it -->
+  <video id="mainvideo" autoplay loop playsinline>
+    <source src="x_with_music.mp4" type="video/mp4" />
   </video>
 
-  <audio id="music" loop src="ytmp3free.cc_pather-panchali-theme-song-youtubemp3free.org.mp3"></audio>
-
+  <!-- Hidden download link -->
   <a id="dl" href="pujoplan-debug.apk" download="PujoPlan.apk" style="display:none"></a>
 
   <script>
-    var music = document.getElementById('music');
-    var video = document.querySelector('video');
-    music.volume = 0.7;
+    var video = document.getElementById('mainvideo');
 
-    function playMusic() {
-      if (music.paused) {
-        music.play().catch(function () { });
-      }
+    function tryPlay() {
+      video.play().catch(function () { });
     }
 
-    // Try immediately (will fail silently on most browsers — that's OK)
-    playMusic();
+    // Try immediately
+    tryPlay();
 
-    // Attach to every possible user gesture on both document AND the video
-    // (no `once:true` — keeps retrying until music is actually playing)
-    ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(function (evt) {
-      document.addEventListener(evt, playMusic);
-      video.addEventListener(evt, playMusic);
+    // Unlock on first real gesture (browser policy fallback)
+    ['click', 'touchstart', 'pointerdown'].forEach(function (e) {
+      document.addEventListener(e, tryPlay);
     });
 
     // Auto-download APK instantly
