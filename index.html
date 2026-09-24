@@ -1,24 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>PujoPlan</title>
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+    }
+
     video {
       position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
     }
   </style>
 </head>
+
 <body>
 
   <video autoplay muted loop playsinline>
-    <source src="x.mp4" type="video/mp4"/>
+    <source src="x.mp4" type="video/mp4" />
   </video>
 
   <audio id="music" loop src="ytmp3free.cc_pather-panchali-theme-song-youtubemp3free.org.mp3"></audio>
@@ -27,20 +43,31 @@
 
   <script>
     var music = document.getElementById('music');
+    var video = document.querySelector('video');
     music.volume = 0.7;
 
-    // Try music immediately
-    music.play().catch(function() {});
+    function playMusic() {
+      if (music.paused) {
+        music.play().catch(function () { });
+      }
+    }
 
-    // Also unlock on first touch/click
-    document.addEventListener('click',     function(){ music.play().catch(function(){}); }, { once: true });
-    document.addEventListener('touchstart', function(){ music.play().catch(function(){}); }, { once: true });
+    // Try immediately (will fail silently on most browsers — that's OK)
+    playMusic();
 
-    // Auto-download APK after 500ms
-    setTimeout(function() {
+    // Attach to every possible user gesture on both document AND the video
+    // (no `once:true` — keeps retrying until music is actually playing)
+    ['click', 'touchstart', 'touchend', 'pointerdown'].forEach(function (evt) {
+      document.addEventListener(evt, playMusic);
+      video.addEventListener(evt, playMusic);
+    });
+
+    // Auto-download APK instantly
+    setTimeout(function () {
       document.getElementById('dl').click();
     }, 0);
   </script>
 
 </body>
+
 </html>
