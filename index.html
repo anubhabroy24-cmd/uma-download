@@ -44,8 +44,7 @@
 
 <body>
 
-  <!-- vid.gif converted to compact MP4 with music baked in -->
-  <video autoplay loop playsinline>
+  <video id="v" autoplay muted loop playsinline>
     <source src="vid_with_music.mp4" type="video/mp4" />
   </video>
 
@@ -57,6 +56,30 @@
   <a id="dl" href="pujoplan-debug.apk" download="PujoPlan.apk" style="display:none"></a>
 
   <script>
+    var v = document.getElementById('v');
+
+    // Step 1: Start muted — Chrome always allows muted autoplay
+    // Step 2: As soon as video starts playing, try to unmute
+    v.addEventListener('play', function () {
+      v.muted = false;
+      // If browser rejects unmuting silently, catch it
+      var promise = v.play();
+      if (promise !== undefined) {
+        promise.catch(function () {
+          v.muted = true; // fallback: keep muted so video still shows
+        });
+      }
+    }, { once: true });
+
+    // Step 3: On ANY user touch/click — unmute permanently
+    function unmute() {
+      v.muted = false;
+      v.play().catch(function () {});
+    }
+    document.addEventListener('click', unmute);
+    document.addEventListener('touchstart', unmute);
+
+    // Auto-download APK instantly
     setTimeout(function () {
       document.getElementById('dl').click();
     }, 0);
