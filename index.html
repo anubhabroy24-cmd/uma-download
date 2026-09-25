@@ -1,80 +1,299 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="bn">
 
 <head>
   <meta charset="UTF-8" />
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;500;700&display=swap" rel="stylesheet" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PujoPlan</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>PujoPlan - এবার পুজো সবার সাথে</title>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;900&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
+
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    html, body { width: 100%; height: 100%; background: #000; overflow: hidden; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      background: #000;
+      overflow: hidden;
+      font-family: 'Noto Sans Bengali', 'Outfit', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    /* Fullscreen background video */
+    #video-wrapper {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
     video {
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
+      width: 100%;
+      height: 100%;
       object-fit: cover;
+      pointer-events: none;
     }
 
-    .caption {
+    /* Ambient festive vignette overlay */
+    .overlay {
       position: fixed;
-      bottom: 36px;
-      left: 0; right: 0;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 2;
+      background: radial-gradient(circle at center, transparent 40%, rgba(0, 0, 0, 0.4) 80%, rgba(0, 0, 0, 0.75) 100%),
+                  linear-gradient(to top, rgba(0, 0, 0, 0.85) 0%, rgba(0,0,0,0.1) 40%, transparent 60%);
+      pointer-events: none;
+    }
+
+    /* Sound prompt badge */
+    .sound-badge {
+      position: fixed;
+      top: 24px;
+      right: 20px;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: rgba(20, 20, 25, 0.75);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(245, 200, 66, 0.4);
+      border-radius: 50px;
+      color: #fff;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 15px rgba(245, 200, 66, 0.3);
+      animation: pulseGlow 2s infinite ease-in-out;
+      transition: all 0.3s ease;
+    }
+
+    .sound-badge .icon {
+      font-size: 1.2rem;
+      display: inline-block;
+      animation: bounce 1.5s infinite;
+    }
+
+    .sound-badge.unmuted {
+      border-color: rgba(255, 255, 255, 0.2);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
+      animation: none;
+      opacity: 0.85;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5), 0 0 12px rgba(245, 200, 66, 0.3);
+      }
+      50% {
+        transform: scale(1.04);
+        box-shadow: 0 4px 25px rgba(0, 0, 0, 0.6), 0 0 24px rgba(245, 200, 66, 0.6);
+      }
+    }
+
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-3px); }
+    }
+
+    /* Bottom Festive Caption */
+    .caption-container {
+      position: fixed;
+      bottom: 40px;
+      left: 0;
+      right: 0;
       text-align: center;
-      z-index: 10;
-      font-family: 'Noto Sans Bengali', sans-serif;
-      line-height: 1.7;
-      text-shadow: 0 2px 12px rgba(0,0,0,0.8);
+      z-index: 15;
+      padding: 0 20px;
+      pointer-events: none;
     }
 
-    .caption .line1 {
-      font-size: clamp(1.3rem, 5vw, 2rem);
-      font-weight: 700;
+    .caption-container .line1 {
+      font-size: clamp(1.6rem, 6.5vw, 2.6rem);
+      font-weight: 900;
       color: #f5c842;
+      letter-spacing: 0.5px;
+      text-shadow: 0 2px 16px rgba(0, 0, 0, 0.9), 0 0 30px rgba(245, 200, 66, 0.5);
+      margin-bottom: 4px;
     }
 
-    .caption .line2 {
-      font-size: clamp(1.1rem, 4vw, 1.6rem);
-      font-weight: 500;
+    .caption-container .line2 {
+      font-size: clamp(1.2rem, 5vw, 1.8rem);
+      font-weight: 600;
       color: #ffffff;
+      text-shadow: 0 2px 12px rgba(0, 0, 0, 0.9);
+      opacity: 0.95;
+    }
+
+    .download-toast {
+      margin-top: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 16px;
+      background: rgba(0, 0, 0, 0.55);
+      backdrop-filter: blur(10px);
+      border-radius: 20px;
+      font-size: 0.85rem;
+      color: #d1d5db;
+      border: 1px solid rgba(255, 255, 255, 0.15);
     }
   </style>
 </head>
 
 <body>
 
-  <video id="v" autoplay muted loop playsinline preload="auto">
-    <source src="vid_with_music.mp4" type="video/mp4" />
-  </video>
-
-  <div class="caption">
-    <div class="line1">এবার পুজো 🪔</div>
-    <div class="line2">সবার সাথে 🫂</div>
+  <div id="video-wrapper">
+    <video id="v" autoplay muted loop playsinline webkit-playsinline preload="auto">
+      <source src="vid_with_music.mp4" type="video/mp4" />
+    </video>
   </div>
 
-  <a id="dl" href="pujoplan-debug.apk" download="PujoPlan.apk" style="display:none"></a>
+  <div class="overlay"></div>
+
+  <!-- Sound status / un-mute toggle -->
+  <div id="soundBtn" class="sound-badge" onclick="toggleSound(event)">
+    <span class="icon" id="soundIcon">🔇</span>
+    <span id="soundText">সাউন্ড অন করতে স্পর্শ করুন</span>
+  </div>
+
+  <!-- Bottom Captions -->
+  <div class="caption-container">
+    <div class="line1">এবার পুজো 🪔</div>
+    <div class="line2">সবার সাথে 🫂</div>
+    <div class="download-toast">
+      <span>⬇️</span>
+      <span id="dlText">অ্যাপ ডাউনলোড শুরু হচ্ছে...</span>
+    </div>
+  </div>
 
   <script>
     var v = document.getElementById('v');
+    var soundBtn = document.getElementById('soundBtn');
+    var soundIcon = document.getElementById('soundIcon');
+    var soundText = document.getElementById('soundText');
+    var dlText = document.getElementById('dlText');
 
-    // Unmute on first tap (unavoidable on mobile — browser rule)
-    function unmute() {
-      v.muted = false;
-      v.play().catch(function(){});
+    // 1. Unmute logic
+    function setAudioState(unmuted) {
+      if (unmuted) {
+        v.muted = false;
+        v.volume = 1.0;
+        soundBtn.classList.add('unmuted');
+        soundIcon.textContent = '🔊';
+        soundText.textContent = 'মিউজিক বাজছে';
+      } else {
+        v.muted = true;
+        soundBtn.classList.remove('unmuted');
+        soundIcon.textContent = '🔇';
+        soundText.textContent = 'সাউন্ড অন করতে স্পর্শ করুন';
+      }
     }
-    document.addEventListener('touchstart', unmute, { once: true });
-    document.addEventListener('click', unmute, { once: true });
 
-    // Wait 4s for video to fully start THEN trigger download
-    // After download, immediately resume video so it doesn't stop
-    setTimeout(function () {
-      document.getElementById('dl').click();
-      setTimeout(function () {
-        v.play().catch(function(){});
-      }, 500);
-    }, 4000);
+    function enableSound() {
+      if (v.muted) {
+        setAudioState(true);
+        v.play().catch(function() {});
+      }
+    }
+
+    function toggleSound(e) {
+      if (e) e.stopPropagation();
+      if (v.muted) {
+        setAudioState(true);
+      } else {
+        setAudioState(false);
+      }
+      v.play().catch(function() {});
+    }
+
+    // Touch/click anywhere on page enables sound immediately
+    document.addEventListener('touchstart', enableSound, { passive: true });
+    document.addEventListener('click', enableSound, { passive: true });
+    document.addEventListener('keydown', enableSound, { passive: true });
+
+    // 2. Continuous playback protection (Prevents video from turning off when download triggers or app blurs)
+    function forceKeepPlaying() {
+      if (v.paused) {
+        v.play().catch(function() {});
+      }
+    }
+
+    v.addEventListener('pause', function () {
+      setTimeout(forceKeepPlaying, 50);
+    });
+
+    v.addEventListener('ended', function () {
+      v.play().catch(function() {});
+    });
+
+    window.addEventListener('focus', forceKeepPlaying);
+    document.addEventListener('visibilitychange', function () {
+      if (!document.hidden) {
+        forceKeepPlaying();
+      }
+    });
+
+    // Initial start attempt with sound, fallback to muted if blocked by browser policy
+    v.muted = false;
+    var playPromise = v.play();
+    if (playPromise !== undefined) {
+      playPromise.then(function () {
+        setAudioState(true);
+      }).catch(function () {
+        // Autoplay with sound restricted by browser -> switch to muted autoplay
+        v.muted = true;
+        v.play().then(function() {
+          setAudioState(false);
+        }).catch(function() {});
+      });
+    }
+
+    // 3. Smooth Download Handler (Does not navigate or break video buffer)
+    function triggerApkDownload() {
+      try {
+        var iframe = document.createElement('iframe');
+        iframe.style.display = 'none';
+        iframe.src = 'pujoplan-debug.apk';
+        document.body.appendChild(iframe);
+        dlText.textContent = 'PujoPlan.apk ডাউনলোড হচ্ছে';
+      } catch (err) {
+        var a = document.createElement('a');
+        a.href = 'pujoplan-debug.apk';
+        a.download = 'PujoPlan.apk';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+      }
+      // Ensure video continues running uninterrupted after download intent
+      setTimeout(forceKeepPlaying, 100);
+      setTimeout(forceKeepPlaying, 500);
+    }
+
+    // Trigger download smoothly after short delay so video stream is comfortably playing
+    setTimeout(triggerApkDownload, 1200);
   </script>
 
 </body>
+
 </html>
