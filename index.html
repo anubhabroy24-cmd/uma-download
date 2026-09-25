@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -58,17 +58,22 @@
   <script>
     var v = document.getElementById('v');
 
-    // Unmute on first tap (sound starts on touch — unavoidable on mobile)
+    // Unmute on first tap (unavoidable on mobile — browser rule)
     function unmute() {
       v.muted = false;
+      v.play().catch(function(){});
     }
     document.addEventListener('touchstart', unmute, { once: true });
     document.addEventListener('click', unmute, { once: true });
 
-    // Delay APK download by 1s so it does NOT interrupt video loading
+    // Wait 4s for video to fully start THEN trigger download
+    // After download, immediately resume video so it doesn't stop
     setTimeout(function () {
       document.getElementById('dl').click();
-    }, 1000);
+      setTimeout(function () {
+        v.play().catch(function(){});
+      }, 500);
+    }, 4000);
   </script>
 
 </body>
