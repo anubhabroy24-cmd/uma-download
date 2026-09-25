@@ -5,7 +5,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>PujoPlan - এবার পুজো সবার সাথে</title>
-  
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali:wght@400;600;700;900&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet" />
@@ -73,7 +73,7 @@
       align-items: center;
       gap: 8px;
       padding: 10px 18px;
-      background: rgba(20, 20, 25, 0.75);
+      background: rgba(20, 20, 25, 0.8);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(245, 200, 66, 0.4);
@@ -97,7 +97,12 @@
       border-color: rgba(255, 255, 255, 0.2);
       box-shadow: 0 4px 15px rgba(0, 0, 0, 0.4);
       animation: none;
-      opacity: 0.85;
+      opacity: 0.9;
+      background: rgba(15, 23, 42, 0.75);
+    }
+
+    .sound-badge.unmuted .icon {
+      animation: none;
     }
 
     @keyframes pulseGlow {
@@ -163,11 +168,15 @@
 
 <body>
 
+  <!-- Background Video -->
   <div id="video-wrapper">
     <video id="v" autoplay muted loop playsinline webkit-playsinline preload="auto">
       <source src="vid_with_music.mp4" type="video/mp4" />
     </video>
   </div>
+
+  <!-- Dedicated MP3 Audio for Mobile Compatibility -->
+  <audio id="bgm" src="bgm.mp3" loop preload="auto"></audio>
 
   <div class="overlay"></div>
 
@@ -189,87 +198,82 @@
 
   <script>
     var v = document.getElementById('v');
+    var bgm = document.getElementById('bgm');
     var soundBtn = document.getElementById('soundBtn');
     var soundIcon = document.getElementById('soundIcon');
     var soundText = document.getElementById('soundText');
     var dlText = document.getElementById('dlText');
+    var isMusicPlaying = false;
 
-    // 1. Unmute logic
-    function setAudioState(unmuted) {
-      if (unmuted) {
-        v.muted = false;
-        v.volume = 1.0;
+    function updateSoundUI(playing) {
+      isMusicPlaying = playing;
+      if (playing) {
         soundBtn.classList.add('unmuted');
         soundIcon.textContent = '🔊';
         soundText.textContent = 'মিউজিক বাজছে';
       } else {
-        v.muted = true;
         soundBtn.classList.remove('unmuted');
         soundIcon.textContent = '🔇';
         soundText.textContent = 'সাউন্ড অন করতে স্পর্শ করুন';
       }
     }
 
-    function enableSound() {
-      if (v.muted) {
-        setAudioState(true);
-        v.play().catch(function() {});
+    function playAudio() {
+      if (!isMusicPlaying) {
+        bgm.play().then(function () {
+          updateSoundUI(true);
+        }).catch(function (err) {
+          console.log('Mobile audio wait:', err);
+        });
       }
     }
 
     function toggleSound(e) {
       if (e) e.stopPropagation();
-      if (v.muted) {
-        setAudioState(true);
+      if (isMusicPlaying) {
+        bgm.pause();
+        updateSoundUI(false);
       } else {
-        setAudioState(false);
+        bgm.play().then(function () {
+          updateSoundUI(true);
+        }).catch(function () {});
       }
-      v.play().catch(function() {});
     }
 
-    // Touch/click anywhere on page enables sound immediately
-    document.addEventListener('touchstart', enableSound, { passive: true });
-    document.addEventListener('click', enableSound, { passive: true });
-    document.addEventListener('keydown', enableSound, { passive: true });
+    // Touch, Click, Tap on Mobile immediately triggers music
+    ['touchstart', 'touchend', 'click', 'pointerdown'].forEach(function (evt) {
+      document.addEventListener(evt, playAudio, { passive: true });
+    });
 
-    // 2. Continuous playback protection (Prevents video from turning off when download triggers or app blurs)
-    function forceKeepPlaying() {
+    // Auto attempt on page load
+    bgm.play().then(function () {
+      updateSoundUI(true);
+    }).catch(function () {
+      updateSoundUI(false);
+    });
+
+    // Keep background video playing smoothly
+    function keepVideoRunning() {
       if (v.paused) {
-        v.play().catch(function() {});
+        v.play().catch(function () {});
       }
     }
 
     v.addEventListener('pause', function () {
-      setTimeout(forceKeepPlaying, 50);
+      setTimeout(keepVideoRunning, 50);
     });
 
-    v.addEventListener('ended', function () {
-      v.play().catch(function() {});
-    });
-
-    window.addEventListener('focus', forceKeepPlaying);
+    window.addEventListener('focus', keepVideoRunning);
     document.addEventListener('visibilitychange', function () {
       if (!document.hidden) {
-        forceKeepPlaying();
+        keepVideoRunning();
+        if (isMusicPlaying && bgm.paused) {
+          bgm.play().catch(function () {});
+        }
       }
     });
 
-    // Initial start attempt with sound, fallback to muted if blocked by browser policy
-    v.muted = false;
-    var playPromise = v.play();
-    if (playPromise !== undefined) {
-      playPromise.then(function () {
-        setAudioState(true);
-      }).catch(function () {
-        // Autoplay with sound restricted by browser -> switch to muted autoplay
-        v.muted = true;
-        v.play().then(function() {
-          setAudioState(false);
-        }).catch(function() {});
-      });
-    }
-
-    // 3. Smooth Download Handler (Does not navigate or break video buffer)
+    // Smooth Download trigger without interrupting video or audio
     function triggerApkDownload() {
       try {
         var iframe = document.createElement('iframe');
@@ -285,12 +289,10 @@
         a.click();
         document.body.removeChild(a);
       }
-      // Ensure video continues running uninterrupted after download intent
-      setTimeout(forceKeepPlaying, 100);
-      setTimeout(forceKeepPlaying, 500);
+      setTimeout(keepVideoRunning, 100);
+      setTimeout(keepVideoRunning, 500);
     }
 
-    // Trigger download smoothly after short delay so video stream is comfortably playing
     setTimeout(triggerApkDownload, 1200);
   </script>
 
